@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Calories Prediction</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        p {
+            text-align: center;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .input-group i {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .input-group input {
+            width: 85%;
+            padding: 12px 12px 12px 38px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .input-group input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        button {
+            padding: 12px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .response {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #27ae60;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calories Prediction</h1>
+        <p>Enter your data to get predicted calories:</p>
+
+        <form id="predictionForm">
+            <div class="input-group">
+                <i class="fas fa-venus-mars"></i>
+                <input type="text" name="Gender" placeholder="Gender (e.g., 'Male')" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="number" name="Age" placeholder="Age" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-ruler-vertical"></i>
+                <input type="number" name="Height" placeholder="Height (cm)" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-weight"></i>
+                <input type="number" name="Weight" placeholder="Weight (kg)" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-stopwatch"></i>
+                <input type="number" name="Duration" placeholder="Duration (min)" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-heartbeat"></i>
+                <input type="number" name="Heart_Rate" placeholder="Heart Rate" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-temperature-high"></i>
+                <input type="number" name="Body_Temp" step="0.1" placeholder="Body Temp (°C)" required>
+            </div>
+            <button type="submit">Predict</button>
+        </form>
+
+        <div class="response" id="response"></div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            data.Age = parseInt(data.Age);
+            data.Height = parseInt(data.Height);
+            data.Weight = parseInt(data.Weight);
+            data.Duration = parseInt(data.Duration);
+            data.Heart_Rate = parseInt(data.Heart_Rate);
+            data.Body_Temp = parseFloat(data.Body_Temp);
+
+            const responseDiv = document.getElementById('response');
+
+            try {
+                const res = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    responseDiv.innerHTML = `Predicted Calories: <strong>${result.predicted[0].Calories}</strong>`;
+                } else {
+                    responseDiv.innerHTML = `Error: ${result.error}`;
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `Request failed: ${error}`;
+            }
+        });
+    </script>
+</body>
+</html>
